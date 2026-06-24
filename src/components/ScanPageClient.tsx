@@ -1,7 +1,6 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { Header } from "@/components/Header";
 import { QrScanner } from "@/components/QrScanner";
 import { ScanItemView } from "@/components/ScanItemView";
@@ -9,24 +8,37 @@ import { ScanItemView } from "@/components/ScanItemView";
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+function getItemIdFromLocation(): string | null {
+  const params = new URLSearchParams(window.location.search);
+  const fromQuery = params.get("item");
+  if (fromQuery && UUID_PATTERN.test(fromQuery)) {
+    return fromQuery;
+  }
+
+  const fromPath = window.location.pathname.match(
+    /^\/scan\/([0-9a-f-]{36})$/i,
+  );
+  if (fromPath) {
+    return fromPath[1];
+  }
+
+  return null;
+}
+
 function ScanPageContent() {
-  const searchParams = useSearchParams();
-  const itemParam = searchParams.get("item");
   const [itemId, setItemId] = useState<string | null>(null);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (itemParam && UUID_PATTERN.test(itemParam)) {
-      setItemId(itemParam);
-      return;
-    }
+    setItemId(getItemIdFromLocation());
+    setReady(true);
+  }, []);
 
-    const pathMatch = window.location.pathname.match(
-      /^\/scan\/([0-9a-f-]{36})$/i,
+  if (!ready) {
+    return (
+      <div className="px-4 py-12 text-center text-slate-500">Loading…</div>
     );
-    if (pathMatch) {
-      setItemId(pathMatch[1]);
-    }
-  }, [itemParam]);
+  }
 
   if (itemId) {
     return (

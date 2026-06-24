@@ -64,9 +64,18 @@ export function ScanItemView({ itemId }: { itemId: string }) {
 
   if (error && !item) {
     return (
-      <p className="rounded-xl bg-red-50 px-4 py-3 text-center text-red-700">
-        {error}
-      </p>
+      <div className="space-y-3">
+        <p className="rounded-xl bg-red-50 px-4 py-3 text-center text-red-700">
+          {error}
+        </p>
+        <button
+          type="button"
+          onClick={loadItem}
+          className="w-full rounded-xl bg-slate-900 py-3 font-semibold text-white"
+        >
+          Retry
+        </button>
+      </div>
     );
   }
 

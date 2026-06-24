@@ -11,8 +11,9 @@ export function middleware(request: NextRequest) {
   if (scanMatch) {
     const url = request.nextUrl.clone();
     url.pathname = "/scan";
+    url.search = "";
     url.searchParams.set("item", scanMatch[1]);
-    return NextResponse.rewrite(url);
+    return NextResponse.redirect(url);
   }
 
   const isAdminRoute =
