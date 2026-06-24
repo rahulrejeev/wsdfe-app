@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { InventoryItem } from "@/lib/types";
 
 function QrModal({
@@ -60,11 +60,29 @@ export function AdminTable({ initialItems }: { initialItems: InventoryItem[] }) 
   const [qrItem, setQrItem] = useState<InventoryItem | null>(null);
 
   async function refreshItems() {
-    const response = await fetch("/api/items");
+    const response = await fetch("/api/items", { cache: "no-store" });
     if (response.ok) {
       setItems(await response.json());
     }
   }
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadItems() {
+      const response = await fetch("/api/items", { cache: "no-store" });
+      if (response.ok && active) {
+        setItems(await response.json());
+      }
+    }
+
+    loadItems();
+    const interval = setInterval(loadItems, 5000);
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
+  }, []);
 
   async function addItem(event: React.FormEvent) {
     event.preventDefault();
@@ -180,9 +198,10 @@ export function AdminTable({ initialItems }: { initialItems: InventoryItem[] }) 
                 </tr>
               ) : (
                 items.map((item) => (
-                  <tr key={item.id} className="border-t border-slate-100">
+                  <tr key={`${item.id}-${item.updated_at}`} className="border-t border-slate-100">
                     <td className="px-4 py-3">
                       <input
+                        key={`name-${item.id}-${item.updated_at}`}
                         defaultValue={item.name}
                         onBlur={(e) => {
                           if (e.target.value !== item.name) {
@@ -194,6 +213,7 @@ export function AdminTable({ initialItems }: { initialItems: InventoryItem[] }) 
                     </td>
                     <td className="px-4 py-3">
                       <input
+                        key={`sku-${item.id}-${item.updated_at}`}
                         defaultValue={item.sku ?? ""}
                         onBlur={(e) => {
                           const next = e.target.value || null;
@@ -206,6 +226,7 @@ export function AdminTable({ initialItems }: { initialItems: InventoryItem[] }) 
                     </td>
                     <td className="px-4 py-3">
                       <input
+                        key={`qty-${item.id}-${item.quantity}`}
                         type="number"
                         min="0"
                         defaultValue={item.quantity}

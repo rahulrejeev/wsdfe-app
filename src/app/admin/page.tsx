@@ -5,6 +5,8 @@ import { SignOutButton } from "@/components/SignOutButton";
 import { createServiceClient } from "@/lib/supabase/server";
 import type { InventoryItem } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminPage() {
   let items: InventoryItem[] = [];
 
