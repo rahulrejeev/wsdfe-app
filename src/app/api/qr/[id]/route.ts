@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { getScanUrl } from "@/lib/app-url";
 import { createServiceClient } from "@/lib/supabase/server";
 
+export const runtime = "nodejs";
+
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function GET(_request: Request, context: RouteContext) {
@@ -34,7 +36,8 @@ export async function GET(_request: Request, context: RouteContext) {
         "Cache-Control": "public, max-age=86400",
       },
     });
-  } catch {
+  } catch (err) {
+    console.error("QR generation failed:", err);
     return NextResponse.json(
       { error: "Server configuration error" },
       { status: 500 },

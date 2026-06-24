@@ -10,7 +10,7 @@ function QrModal({
   item: InventoryItem;
   onClose: () => void;
 }) {
-  const qrUrl = `/api/items/${item.id}/qr`;
+  const qrUrl = `/api/qr/${item.id}`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center">
