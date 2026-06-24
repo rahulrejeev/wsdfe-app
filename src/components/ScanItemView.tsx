@@ -10,13 +10,30 @@ export function ScanItemView({ itemId }: { itemId: string }) {
   const [loading, setLoading] = useState(true);
 
   const loadItem = useCallback(async () => {
-    const response = await fetch(`/api/items/${itemId}`);
-    if (!response.ok) {
-      setError("Item not found");
-      setLoading(false);
-      return;
+    setLoading(true);
+    setError(null);
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        const response = await fetch(`/api/items/${itemId}`);
+        if (response.ok) {
+          setItem(await response.json());
+          setLoading(false);
+          return;
+        }
+        if (response.status === 404) {
+          setError("Item not found");
+          setLoading(false);
+          return;
+        }
+      } catch {
+        if (attempt < 2) {
+          await new Promise((resolve) => setTimeout(resolve, 600 * (attempt + 1)));
+        }
+      }
     }
-    setItem(await response.json());
+
+    setError("Could not load item. Check your connection and try again.");
     setLoading(false);
   }, [itemId]);
 

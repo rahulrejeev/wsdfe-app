@@ -2,10 +2,22 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { ADMIN_SESSION_COOKIE, getAdminToken } from "@/lib/auth";
 
+const SCAN_UUID_PATTERN = /^\/scan\/([0-9a-f-]{36})$/i;
+
 export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  const scanMatch = pathname.match(SCAN_UUID_PATTERN);
+  if (scanMatch) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/scan";
+    url.searchParams.set("item", scanMatch[1]);
+    return NextResponse.rewrite(url);
+  }
+
   const isAdminRoute =
-    request.nextUrl.pathname.startsWith("/admin") &&
-    !request.nextUrl.pathname.startsWith("/admin/login");
+    pathname.startsWith("/admin") &&
+    !pathname.startsWith("/admin/login");
 
   if (!isAdminRoute) {
     return NextResponse.next();
@@ -30,5 +42,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/scan/:path*"],
 };

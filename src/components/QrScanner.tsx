@@ -21,16 +21,23 @@ export function QrScanner() {
           { facingMode: "environment" },
           { fps: 10, qrbox: { width: 250, height: 250 } },
           (decodedText) => {
-            const match = decodedText.match(/\/scan\/([0-9a-f-]{36})/i);
-            if (match) {
+            const queryMatch = decodedText.match(/[?&]item=([0-9a-f-]{36})/i);
+            if (queryMatch) {
               scanner.stop().catch(() => undefined);
-              router.push(`/scan/${match[1]}`);
+              router.push(`/scan?item=${queryMatch[1]}`);
+              return;
+            }
+
+            const pathMatch = decodedText.match(/\/scan\/([0-9a-f-]{36})/i);
+            if (pathMatch) {
+              scanner.stop().catch(() => undefined);
+              router.push(`/scan?item=${pathMatch[1]}`);
               return;
             }
 
             if (/^[0-9a-f-]{36}$/i.test(decodedText)) {
               scanner.stop().catch(() => undefined);
-              router.push(`/scan/${decodedText}`);
+              router.push(`/scan?item=${decodedText}`);
             }
           },
           () => undefined,

@@ -11,5 +11,5 @@ export function getAppUrl(): string {
 }
 
 export function getScanUrl(itemId: string): string {
-  return `${getAppUrl()}/scan/${itemId}`;
+  return `${getAppUrl()}/scan?item=${itemId}`;
 }
